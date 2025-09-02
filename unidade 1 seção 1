@@ -1,0 +1,106 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyM3BrznjJtZe2l0As/8Z6SD",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/migueleaferreira/sd/blob/main/unidade%201%20se%C3%A7%C3%A3o%201\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import socket\n",
+        "import threading\n",
+        "import time\n",
+        "\n",
+        "HOST = \"127.0.0.1\"\n",
+        "PORT = 5001\n",
+        "\n",
+        "# --- Servidor ---\n",
+        "def servidor():\n",
+        "    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n",
+        "    server_socket.bind((HOST, PORT))\n",
+        "    server_socket.listen(1)\n",
+        "    print(\"Servidor aguardando conexão...\")\n",
+        "\n",
+        "    conn, addr = server_socket.accept()\n",
+        "    print(f\"Conectado por {addr}\")\n",
+        "\n",
+        "    while True:\n",
+        "        data = conn.recv(1024).decode()\n",
+        "        if not data:\n",
+        "            break\n",
+        "        print(f\"[Servidor] Cliente disse: {data}\")\n",
+        "        resposta = f\"Recebi sua mensagem: {data}\"\n",
+        "        conn.sendall(resposta.encode())\n",
+        "\n",
+        "    conn.close()\n",
+        "    server_socket.close()\n",
+        "\n",
+        "# --- Cliente ---\n",
+        "def cliente():\n",
+        "    time.sleep(1)  # esperar o servidor iniciar\n",
+        "    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n",
+        "    client_socket.connect((HOST, PORT))\n",
+        "    mensagens = [\"Oi servidor\", \"Tudo bem?\", \"sair\"]\n",
+        "\n",
+        "    for msg in mensagens:\n",
+        "        print(f\"[Cliente] enviando: {msg}\")\n",
+        "        client_socket.sendall(msg.encode())\n",
+        "        data = client_socket.recv(1024).decode()\n",
+        "        print(f\"[Cliente] recebeu: {data}\")\n",
+        "        time.sleep(1)\n",
+        "\n",
+        "    client_socket.close()\n",
+        "\n",
+        "# --- Executar no Colab ---\n",
+        "threading.Thread(target=servidor).start()\n",
+        "threading.Thread(target=cliente).start()\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "p2rB0Cf6brFE",
+        "outputId": "413d7c40-9560-4009-8481-63849a0399f8"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Exception in thread Thread-5 (servidor):\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/lib/python3.12/threading.py\", line 1075, in _bootstrap_inner\n",
+            "    self.run()\n",
+            "  File \"/usr/lib/python3.12/threading.py\", line 1012, in run\n",
+            "    self._target(*self._args, **self._kwargs)\n",
+            "  File \"/tmp/ipython-input-846946364.py\", line 11, in servidor\n",
+            "OSError: [Errno 98] Address already in use\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
